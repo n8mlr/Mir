@@ -1,2 +1,3 @@
-#!/usr/bin/env ruby -wKU
-puts "Hello world"
+#!/usr/bin/env ruby
+require 'a3backup'
+A3backup::Application.start
