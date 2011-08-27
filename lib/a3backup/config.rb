@@ -1,5 +1,4 @@
-require 'yaml'
-require 'ostruct'
+
 
 # The config class is used for storage of user settings and preferences releated to 
 # S3 storage
@@ -30,11 +29,8 @@ module A3backup
         yml = YAML::load(f)
         if yml.key? "settings"
           @settings = OpenStruct.new yml["settings"]
-          db = @settings.database.inject({}) do |options, (k,v)|
-            options[(k.to_sym rescue k) || k] = v
-            options
-          end
-          @settings.database = db
+          @settings.database = symbolize_keys(@settings.database)
+          @settings.cloud_provider = symbolize_keys(@settings.cloud_provider)
         else
           A3backup.logger.error("Malformed config file")
           return false
@@ -54,6 +50,14 @@ module A3backup
       end
     end
     
+    private
+      def symbolize_keys(hsh)
+        symbolized = hsh.inject({}) do |opts, (k,v)|
+          opts[(k.to_sym rescue k) || k] = v
+          opts
+        end
+        symbolized
+      end
     
   end
 end

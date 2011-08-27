@@ -4,21 +4,24 @@ require 'ostruct'
 module A3backup
   class Application
     class Options
+      
+      USAGE_BANNER = "Usage: a3backup [options] [settings_file_path] [backup_directory]"
+      
       def self.parse(args)
         options = OpenStruct.new
         options.debug = false
         options.verbose = false
         options.settings_file = nil
         options.log_destination = STDOUT
-        options.flush_db = false
+        options.flush = false
         
         opts_parser = OptionParser.new do |opts|
-          opts.banner = "Usage: a3backup [setings] [directory] [options]"
+          opts.banner = USAGE_BANNER
           opts.separator ""
           opts.separator "Specific options:"
           
-          opts.on("--flush-db", "Flush all database tables and rebuild index") do
-            options.flush_db = true
+          opts.on("--flush", "Flush the file index") do
+            options.flush = true
           end
           
           opts.on("-l", "--log-path LOG_FILE", String, "Location for storing execution logs") do |log_file|
@@ -50,6 +53,7 @@ module A3backup
       new.start
     end
     
+    
     attr_reader :options
     
     def initialize
@@ -57,48 +61,49 @@ module A3backup
       A3backup.logger = Logger.new(options.log_destination)
     end
     
-    def logger
-      A3backup.logger
-    end
-    
     def start
-      @config = Config.new(ARGV[0])
-      @backup_path = ARGV[1]
-      
-      if @config.valid?
-        logger.info("Starting application")
-      else
-        logger.error("Configuration file is not valid")
+      if ARGV.size < 2
+        puts Options::USAGE_BANNER
         exit
       end
       
-      @database = Database.new(@config.database)
-      @database.setup(:force_flush => options.flush_db, :verbose => options.verbose)
+      @@config = Config.new(ARGV[0])
+      param_path = File.expand_path(ARGV[1])
       
-      update_index
-    end
-    
-    private
-      def update_index
-        logger.info "Updating backup index"
-        Dir.glob(File.join(@backup_path, "**")) do |f|
-          fname = File.basename(f)
-          file = File.new(f)
-          resource = Models::Resource.find_by_filename(fname)
-
-          if !resource
-            puts "Adding file to index #{fname}"
-            resource = Models::Resource.create_from_file(file)
-          else
-            unless resource.synchronized?(file)
-              puts "#{fname} is out of sync"
-            end
-          end
-                              
-        end
-        logger.info "Backup index completed"
+      if config.valid?
+        A3backup.logger.info("Starting application")
+      else
+        A3backup.logger.error("Configuration file is not valid")
+        exit
       end
       
-        
+      disk = Disk.fetch(config.cloud_provider)
+      exit unless disk.connected?
+      
+      index = Index.new(param_path, config.database)
+      index.setup(:verbose => options.verbose, :force_flush => options.flush)
+      index.update
+      
+      index.files_pending_sync do |resource|
+        file_path = resource.filename
+        resource.start_progress
+        begin
+          disk.write file_path
+          resource.update_success
+        rescue Exception => e
+          A3backup.logger.error e.message
+          resource.update_failure
+        end
+      end
+    end
+  
+    def self.config
+      @@config
+    end
+    
+    def config
+      @@config
+    end
+    
   end
 end
