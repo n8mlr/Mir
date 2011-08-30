@@ -30,23 +30,18 @@ module A3backup
         exit
       end
       
-      disk = Disk.fetch(config.cloud_provider)
-      exit unless disk.connected?
+      # Initialize our remote disk
+      @disk = Disk.fetch(config.cloud_provider)
+      exit unless @disk.connected?
       
-      index = Index.new(param_path, config.database)
-      index.setup(:verbose => options.verbose, :force_flush => options.flush)
-      index.update
+      # Initialize our local index
+      @index = Index.new(param_path, config.database)
+      @index.setup(:verbose => options.verbose, :force_flush => options.flush)
       
-      index.files_pending_sync do |resource|
-        file_path = resource.filename
-        resource.start_progress
-        begin
-          disk.write file_path
-          resource.update_success
-        rescue Exception => e
-          A3backup.logger.error e.message
-          resource.update_failure
-        end
+      if options.copy
+        pull(param_path)
+      else
+        push
       end
     end
   
@@ -58,5 +53,46 @@ module A3backup
       @@config
     end
     
+    private
+      
+      # Synchronize the local files to the disk
+      def push
+        # need to do a check here to see if the target directory has changed
+        # from what we've stored locally. If so, we'll need to rebuild the index manually
+        @index.update
+        Models::Resource.pending_sync do |resource|
+          resource.start_progress
+          begin
+            @disk.write resource.abs_path
+            resource.update_success
+          rescue Exception => e
+            A3backup.logger.error e.message
+            resource.update_failure
+          end
+        end
+      end
+      
+      # Copy the remote disk contents into the specified directory
+      def pull(target)
+        Utils.try_create_dir(target)
+        write_dir = Dir.new(target)
+        A3backup.logger.info "Copying remote disk to #{write_dir.path}"
+        
+        # loop through each resource. If the resource is a directory, create the path
+        # otherwise download the file
+        Models::Resource.chunked_by_name do |resource|
+          dest = File.join(write_dir.path, resource.filename)
+          
+          if resource.is_directory?  
+            Utils.try_create_dir(dest)
+          else
+            # if file already exists, check whether a download is necessary
+            if !File.exist?(dest) or resource.changed?(dest)
+              @disk.copy(resource.abs_path, dest)
+            end
+          end
+        end
+      end
+          
   end
 end

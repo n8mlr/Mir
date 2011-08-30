@@ -9,12 +9,12 @@ module A3backup
     
     # Returns a databse object used to connect to the indexing database
     # @param [Hash] database configuration settings. See ActiveRecord#Base::establish_connection
-    def initialize(backup_path, connection_params)
-      @backup_path = backup_path
+    def initialize(sync_path, connection_params)
+      @sync_path = sync_path
       @connection_params = connection_params
     end
     
-    attr_reader :backup_path
+    attr_reader :sync_path
     
     # Creates necessary database and tables if this is the first time connecting
     # @option opts [Boolean] :verbose Enable on ActiveRecord reporting
@@ -31,45 +31,39 @@ module A3backup
       end
       
       load_tables
-      
-      stored_backup_path = Models::AppSetting.backup_path
-      if !tables_created? or backup_path != stored_backup_path or options[:force_flush]
-        rebuild     
-      end
+      rebuild if !tables_created? or options[:force_flush]
     end
     
     # Updates the index for the file directory path
     def update
-      A3backup.logger.info "Updating backup index for '#{backup_path}'"
-      Dir.glob(File.join(backup_path, "**", "*")) do |f|
-        fname = File.absolute_path(f)
+      A3backup.logger.info "Updating backup index for '#{sync_path}'"
+      Dir.glob(File.join(sync_path, "**", "*")) do |f|sync_path
+        fname = relative_path(f)
         file = File.new(f)
         resource = Models::Resource.find_by_filename(fname)
 
         if !resource
           puts "Adding file to index #{fname}"
-          resource = Models::Resource.create_from_file(file)
+          resource = Models::Resource.create_from_file_and_name(file, fname)
         else
           "#{fname} is out of sync" unless resource.synchronized?(file)
         end                
       end
     end
     
-    # Yields a Models::Resource object
-    def files_pending_sync(&block)
-      resource_ids = Models::Resource.pending_jobs
-      resource_ids.each { |rid| yield Models::Resource.find(rid) }
-    end
-    
     private
+      # Returns the path of a file relative to the backup directory
+      def relative_path(file)
+        File.absolute_path(file).gsub(sync_path,'')
+      end
       
       # Regenerates the file system index for the backup directory
       def rebuild
         tables.each { |t| ActiveRecord::Migration.drop_table(t.table_name) if t.table_exists? }
         ActiveRecord::Migration.drop_table(:schema_migrations) if @connection.table_exists? :schema_migrations
         ActiveRecord::Migrator.migrate MIGRATIONS_PATH
-        Models::AppSetting.create(:name => "backup_path", :value => backup_path)
-        Models::AppSetting.create(:name => "installation_date", :value => DateTime.now.to_s)
+        Models::AppSetting.create(:name => Models::AppSetting::SYNC_PATH, :value => sync_path)
+        Models::AppSetting.create(:name => Models::AppSetting::INSTALL_DATE, :value => DateTime.now.to_s)
       end
       
       def load_tables

@@ -1,7 +1,7 @@
 module A3backup
   class Options
     
-    USAGE_BANNER = "Usage: a3backup [options] [settings_file_path] [backup_directory]"
+    USAGE_BANNER = "Usage: a3backup [options] [settings_file_path] [target]"
     
     def self.parse(args)
       options = OpenStruct.new
@@ -10,6 +10,7 @@ module A3backup
       options.settings_file = nil
       options.log_destination = STDOUT
       options.flush = false
+      options.copy = false
       
       opts_parser = OptionParser.new do |opts|
         opts.banner = USAGE_BANNER
@@ -18,6 +19,10 @@ module A3backup
         
         opts.on("--flush", "Flush the file index") do
           options.flush = true
+        end
+        
+        opts.on("--copy", "Copy the remote files to target") do
+          options.copy = true
         end
         
         opts.on("-l", "--log-path LOG_FILE", String, "Location for storing execution logs") do |log_file|

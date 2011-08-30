@@ -2,6 +2,8 @@ module A3backup
   module Disk
     class Amazon
       
+      attr_reader :bucket_name
+      
       def initialize(settings = {})
         @bucket_name = settings[:bucket_name]
         @access_key_id = settings[:access_key_id]
@@ -15,14 +17,25 @@ module A3backup
         AWS::S3::Service.buckets
       end
       
+      # Copies the remote resource to the local filesystem
+      # @param [String] the remote name of the resource to copy
+      # @param [String] the local name of the destination
+      def copy(from, to)
+        open(to, 'w') do |file|
+          AWS::S3::S3Object.stream(from, volume.name) { |chunk| file.write(chunk) }
+        end
+        A3backup.logger.info "Completed download '#{to}'"
+      end
+      
       def connected?
         @connection_success
       end
       
       def volume
         begin
-          AWS::S3::Bucket.find(@bucket_name)          
+          AWS::S3::Bucket.find(bucket_name)          
         rescue AWS::S3::NoSuchBucket => e
+          A3backup.logger.info "Could not find bucket named '#{bucket_name}'"
         end
       end
       
@@ -44,8 +57,9 @@ module A3backup
           end
         end
         
+        # Create the remote bucket
         def create_bucket
-          AWS::S3::Bucket.create(@bucket_name)
+          AWS::S3::Bucket.create(bucket_name)
         end
       
     end

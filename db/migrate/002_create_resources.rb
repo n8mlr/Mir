@@ -6,6 +6,7 @@ class CreateResources < ActiveRecord::Migration
       t.datetime :last_modified
       t.datetime :add_date, :default => DateTime.now
       t.datetime :last_synchronized
+      t.boolean :is_directory, :default => false, :null => false
       t.boolean :in_progress, :default => false
       t.boolean :queued, :default => false
       t.integer :times_failed, :default => 0, :null => false
