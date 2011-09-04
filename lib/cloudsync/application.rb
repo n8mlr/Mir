@@ -3,6 +3,8 @@ require 'fileutils'
 module Cloudsync
   
   class Application
+    
+    DEFAULT_SETTINGS_FILE_NAME = "cloudsync_settings.yml"
         
     # Creates a new Cloudsync instance
     def self.start
@@ -17,25 +19,14 @@ module Cloudsync
     end
     
     def start
-      if ARGV.size < 2
-        puts Cloudsync::Options::USAGE_BANNER
-        exit
-      end
-      
       if options.copy && options.flush
         Cloudsync.logger.error "Conflicting options: Cannot copy from remote source with an empty file index"
         exit
       end
       
-      @@config = Config.new(ARGV[0])
-      param_path = File.expand_path(ARGV[1])
-      
-      if config.valid?
-        Cloudsync.logger.info("Starting application")
-      else
-        Cloudsync.logger.error("Configuration file is not valid")
-        exit
-      end
+      @@config = Config.new find_settings_file
+      param_path = File.expand_path(ARGV[0])
+      exit unless config.valid?
       
       # Initialize our remote disk
       @disk = Disk.fetch(config.cloud_provider)
@@ -57,6 +48,21 @@ module Cloudsync
     end
     
     private
+      # Returns a path to the settings file. If the file was provided as an option it will always
+      # be returned. When no option is passed, the file 'cloudsync_settings.yml' will be searched for
+      # in the following paths: $HOME, /etc/cloudsync
+      # @return [String] path to the settings or nil if none is found
+      def find_settings_file
+        if !options.settings_path.nil?
+          return options.settings_path
+        else
+          ["~", "/etc/cloudsync"].each do |dir|
+            path = File.expand_path(File.join(dir, DEFAULT_SETTINGS_FILE_NAME))
+            return path.to_s if File.exist?(path)
+          end
+        end
+        nil
+      end
       
       # Synchronize the local files to the disk
       def push(target)
@@ -111,7 +117,6 @@ module Cloudsync
           end
           queue.join
         end
-        
         Cloudsync.logger.info time
       end
           

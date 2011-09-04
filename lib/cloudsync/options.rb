@@ -11,6 +11,7 @@ module Cloudsync
       options.log_destination = STDOUT
       options.flush = false
       options.copy = false
+      options.settings_path = nil
       
       opts_parser = OptionParser.new do |opts|
         opts.banner = USAGE_BANNER
@@ -23,6 +24,10 @@ module Cloudsync
         
         opts.on("-c", "--copy", "Copy the remote files to target") do
           options.copy = true
+        end
+        
+        opts.on("--settings", String, "The YAML settings file") do |path|
+          options.settings_path = path
         end
         
         opts.on("-l", "--log-path LOG_FILE", String, "Location for storing execution logs") do |log_file|

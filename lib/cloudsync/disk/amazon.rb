@@ -29,7 +29,7 @@ module Cloudsync
       # @param [String] the local name of the destination
       def copy(from, to)
         open(to, 'w') do |file|
-          @connection.get(bucket_name, from) { |chunk| file.write(chunk) }
+          @connection.get(bucket_name, self.class.key_name(from)) { |chunk| file.write(chunk) }
         end
         Cloudsync.logger.info "Completed download '#{to}'"
       end

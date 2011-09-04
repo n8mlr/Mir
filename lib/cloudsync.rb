@@ -8,14 +8,13 @@ require "cloudsync/options"
 require "cloudsync/utils"
 require "cloudsync/version"
 
-require "right_aws"
+
 require "benchmark"
-require 'ostruct'
-require 'yaml'
+require "right_aws"
 require 'optparse'
 require 'ostruct'
 require 'work_queue'
-
+require 'yaml'
 
 module Cloudsync
 end

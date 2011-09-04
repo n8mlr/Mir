@@ -7,14 +7,14 @@ module Cloudsync
     
   class Config
     
-    def initialize(config_file)
+    def initialize(config_file = nil)
       @config_file = config_file
       @settings, @database = nil, nil
     end
     
     # Validates configuration settings
     def valid?
-      unless File.exist?(@config_file)
+      if @config_file.nil? or !File.exist?(@config_file)
         Cloudsync.logger.error("Configuration file not found")
         return false
       end
