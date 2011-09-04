@@ -4,7 +4,7 @@ require "cloudsync/version"
 
 Gem::Specification.new do |s|
   s.name        = "cloudsync"
-  s.version     = CloudSync.version
+  s.version     = Cloudsync.version
   s.authors     = ["Nate Miller"]
   s.email       = ["nate@natemiller.org"]
   s.homepage    = ""
@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
 
   # specify any dependencies here; for example:
   # s.add_development_dependency "rspec"
-  s.add_runtime_dependency "aws-s3"
+  s.add_runtime_dependency "right_aws"
   s.add_runtime_dependency "activerecord"
   s.add_runtime_dependency "activesupport"
   s.add_runtime_dependency "work_queue"
