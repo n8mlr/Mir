@@ -1,7 +1,7 @@
-module A3backup
+module Cloudsync
   class Options
     
-    USAGE_BANNER = "Usage: a3backup [options] [settings_file_path] [target]"
+    USAGE_BANNER = "Usage: cloudsync [options] [settings_file_path] [target]"
     
     def self.parse(args)
       options = OpenStruct.new
@@ -21,7 +21,7 @@ module A3backup
           options.flush = true
         end
         
-        opts.on("--copy", "Copy the remote files to target") do
+        opts.on("-c", "--copy", "Copy the remote files to target") do
           options.copy = true
         end
         
@@ -39,7 +39,7 @@ module A3backup
         end
         
         opts.on_tail("--version", "Show version") do
-          puts A3backup.version
+          puts Cloudsync.version
           exit
         end
       end

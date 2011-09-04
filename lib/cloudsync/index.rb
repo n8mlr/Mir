@@ -2,7 +2,7 @@ require 'active_record'
 require "active_support/inflector"
 
 # Manages database operations for application
-module A3backup
+module Cloudsync
   class Index
     
     MIGRATIONS_PATH = File.join(File.dirname(__FILE__), "..", "..", "db", "migrate")
@@ -26,7 +26,7 @@ module A3backup
       ActiveRecord::Base.timestamped_migrations = false
       
       if options[:verbose]
-        ActiveRecord::Base.logger = A3backup.logger
+        ActiveRecord::Base.logger = Cloudsync.logger
         ActiveRecord::Migration.verbose = true
       end
       
@@ -36,19 +36,20 @@ module A3backup
     
     # Updates the index for the file directory path
     def update
-      A3backup.logger.info "Updating backup index for '#{sync_path}'"
-      Dir.glob(File.join(sync_path, "**", "*")) do |f|sync_path
+      Cloudsync.logger.info "Updating backup index for '#{sync_path}'"
+      Dir.glob(File.join(sync_path, "**", "*")) do |f|
         fname = relative_path(f)
         file = File.new(f)
         resource = Models::Resource.find_by_filename(fname)
 
         if !resource
-          puts "Adding file to index #{fname}"
+          Cloudsync.logger.info "Adding file to index #{fname}"
           resource = Models::Resource.create_from_file_and_name(file, fname)
         else
-          "#{fname} is out of sync" unless resource.synchronized?(file)
+          Cloudsync.logger.info "#{fname} is out of sync" unless resource.synchronized?(file)
         end                
       end
+      Cloudsync.logger.info "Index updated"
     end
     
     private

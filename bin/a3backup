@@ -1,3 +1,0 @@
-#!/usr/bin/env ruby
-require 'a3backup'
-A3backup::Application.start

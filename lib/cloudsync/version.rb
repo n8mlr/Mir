@@ -1,4 +1,4 @@
-module A3backup
+module Cloudsync
   VERSION = [0,1,1]
   
   def self.version

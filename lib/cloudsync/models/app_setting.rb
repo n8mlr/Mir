@@ -1,4 +1,4 @@
-module A3backup
+module Cloudsync
   module Models
     class AppSetting < ActiveRecord::Base
       
@@ -9,6 +9,7 @@ module A3backup
         record = self.where(:name => SYNC_PATH).first
         record.value rescue nil
       end
+
     end
   end
 end

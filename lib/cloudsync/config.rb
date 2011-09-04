@@ -2,7 +2,7 @@
 
 # The config class is used for storage of user settings and preferences releated to 
 # S3 storage
-module A3backup
+module Cloudsync
   class UndefinedConfigValue < StandardError; end
     
   class Config
@@ -15,16 +15,15 @@ module A3backup
     # Validates configuration settings
     def valid?
       unless File.exist?(@config_file)
-        A3backup.logger.error("Configuration file not found")
+        Cloudsync.logger.error("Configuration file not found")
         return false
       end
       
       if File.directory?(@config_file)
-        A3backup.logger.error("Received directory instead of settings file")
+        Cloudsync.logger.error("Received directory instead of settings file")
         return false
       end
       
-      # This needs to be improved for fault tolerance
       File.open(@config_file) do |f|
         yml = YAML::load(f)
         if yml.key? "settings"
@@ -32,7 +31,7 @@ module A3backup
           @settings.database = symbolize_keys(@settings.database)
           @settings.cloud_provider = symbolize_keys(@settings.cloud_provider)
         else
-          A3backup.logger.error("Malformed config file")
+          Cloudsync.logger.error("Malformed config file")
           return false
         end
       end

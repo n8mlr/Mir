@@ -1,5 +1,7 @@
+require 'digest/md5'
+
 # Represents a local file asset
-module A3backup
+module Cloudsync
   module Models
     class Resource < ActiveRecord::Base
       
@@ -10,12 +12,14 @@ module A3backup
       # @param [String] the name of the file on the remote disk
       # @returns [Resource] a new Resource instance that with a queued status
       def self.create_from_file_and_name(file, name)
+        is_dir = File.directory?(file)
         create(:filename => name,
                :size => file.size,
                :last_modified => file.ctime,
                :add_date => DateTime.now,
-               :queued => true,
-               :is_directory => File.directory?(file))
+               :queued => !is_dir,
+               :checksum => is_dir ? nil : Digest::MD5.file(file).to_s,
+               :is_directory => is_dir)
       end
       
       # Yields a Models::Resource object that needs to be synchronized
@@ -35,10 +39,14 @@ module A3backup
       end
       
       # Compares a file asset to the index to deterimine whether the file needs to be updated
-      # @param [File] a file object
+      # @param [String] a path to a file or directory
       # @returns [Boolean] whether the file and index are in sync with each other
       def synchronized?(file)
-        (file.size == self.size) and (file.ctime.to_s == last_modified.to_s)
+        if File.exists? file
+          return true if File.directory? file
+          return Digest::MD5.file(file).to_s == self.checksum
+        end
+        false
       end
       
       def start_progress
@@ -54,20 +62,14 @@ module A3backup
       
       def update_failure
         num_times_failed = times_failed + 1
-        will_requeue = (num_times_failed < A3backup::Application.config.max_upload_retries)
+        will_requeue = (num_times_failed < Cloudsync::Application.config.max_upload_retries)
         update_attributes :times_failed => num_times_failed, :in_progress => false, :queued => will_requeue
       end
       
       def abs_path
         File.join(Models::AppSetting.backup_path, filename)
       end
-      
-      # Checks whether the local resource is different from what is stored in the index
-      # @param [String] the path of the resource to be compared
-      # @returns [Bool] whether the resource has changed
-      def changed?(local_path)
-        File.size?(local_path) != self.size
-      end
+
     end
   end
 end

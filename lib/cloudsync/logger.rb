@@ -1,6 +1,6 @@
 require 'logger'
 
-module A3backup
+module Cloudsync
   def self.logger=(logger)
     @@logger = logger
   end

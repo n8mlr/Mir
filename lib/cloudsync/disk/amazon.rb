@@ -1,20 +1,27 @@
-module A3backup
+module Cloudsync
   module Disk
     class Amazon
       
       attr_reader :bucket_name
+      
+      def self.key_name(path)
+        if path[0] == File::SEPARATOR
+          path[1..-1] 
+        else
+          path
+        end
+      end
       
       def initialize(settings = {})
         @bucket_name = settings[:bucket_name]
         @access_key_id = settings[:access_key_id]
         @secret_access_key = settings[:secret_access_key]
         @connection = try_connect
-        create_bucket if volume.nil?
       end
       
       # Returns the buckets available from S3
       def collections
-        AWS::S3::Service.buckets
+        @connection.list_bucket.select(:key)
       end
       
       # Copies the remote resource to the local filesystem
@@ -22,9 +29,9 @@ module A3backup
       # @param [String] the local name of the destination
       def copy(from, to)
         open(to, 'w') do |file|
-          AWS::S3::S3Object.stream(from, volume.name) { |chunk| file.write(chunk) }
+          @connection.get(bucket_name, from) { |chunk| file.write(chunk) }
         end
-        A3backup.logger.info "Completed download '#{to}'"
+        Cloudsync.logger.info "Completed download '#{to}'"
       end
       
       def connected?
@@ -32,34 +39,27 @@ module A3backup
       end
       
       def volume
-        begin
-          AWS::S3::Bucket.find(bucket_name)          
-        rescue AWS::S3::NoSuchBucket => e
-          A3backup.logger.info "Could not find bucket named '#{bucket_name}'"
-        end
+        @connection.bucket(bucket_name, true)
       end
       
       def write(file_path)
-        AWS::S3::S3Object.store(file_path, open(file_path), volume.name)
+        @connection.put(bucket_name, self.class.key_name(file_path), File.open(file_path))
+        Cloudsync.logger.info "Completed upload #{file_path}"
       end
       
       private
         def try_connect
           begin
-            AWS::S3::Base.establish_connection!(
-              :access_key_id => @access_key_id,
-              :secret_access_key => @secret_access_key
-            )
+            conn = RightAws::S3Interface.new(@access_key_id, @secret_access_key, {
+              :multi_thread => true,
+              :logger => Cloudsync.logger
+            })
             @connection_success = true
+            return conn
           rescue Exception => e
             @connection_success = false
-            A3Backup.logger.error "Could not establish connection with S3: '#{e.message}'"
+            Cloudsync.logger.error "Could not establish connection with S3: '#{e.message}'"
           end
-        end
-        
-        # Create the remote bucket
-        def create_bucket
-          AWS::S3::Bucket.create(bucket_name)
         end
       
     end
