@@ -5,6 +5,7 @@ module Cloudsync
   class Application
     
     DEFAULT_SETTINGS_FILE_NAME = "cloudsync_settings.yml"
+    DEFAULT_BATCH_SIZE = 20
         
     # Creates a new Cloudsync instance
     def self.start
@@ -71,27 +72,29 @@ module Cloudsync
           Cloudsync.logger.error "Target does not match directory stored in index"
           exit
         end
-        # need to do a check here to see if the target directory has changed
+        # TODO - need to do a check here to see if the target directory has changed
         # from what we've stored locally. If so, we'll need to rebuild the index manually
+        
         @index.update
         time = Benchmark.measure do
           queue = WorkQueue.new(config.max_threads)
           
-          Models::Resource.pending_sync do |resource|
-            unless resource.is_directory?
-              resource.start_progress
-              begin
-                queue.enqueue_b {
+          Models::Resource.pending_sync_groups(DEFAULT_BATCH_SIZE) do |resources|
+            resources.each do |resource|
+              next if resource.is_directory?
+              queue.enqueue_b do
+                begin
+                  resource.start_progress
                   @disk.write resource.abs_path
                   resource.update_success
-                }
-              rescue Exception => e
-                Cloudsync.logger.error e.message
-                resource.update_failure
+                rescue Exception => e
+                  Cloudsync.logger.error e.message
+                  resource.update_failure
+                end
               end
             end
+            queue.join
           end
-          queue.join
         end
         Cloudsync.logger.info time
       end
@@ -107,15 +110,17 @@ module Cloudsync
         
           # loop through each resource. If the resource is a directory, create the path
           # otherwise download the file
-          Models::Resource.chunked_by_name do |resource|
-            dest = File.join(write_dir.path, resource.filename)          
-            if resource.is_directory?  
-              Utils.try_create_dir(dest)
-            elsif !resource.synchronized?(dest)
-              queue.enqueue_b { @disk.copy(resource.abs_path, dest) }
+          Models::Resource.ordered_groups(DEFAULT_BATCH_SIZE) do |resources|
+            resources.each do |resource|
+              dest = File.join(write_dir.path, resource.filename)          
+              if resource.is_directory?  
+                Utils.try_create_dir(dest)
+              elsif !resource.synchronized?(dest)
+                queue.enqueue_b { @disk.copy(resource.abs_path, dest) }
+              end
             end
+            queue.join
           end
-          queue.join
         end
         Cloudsync.logger.info time
       end
