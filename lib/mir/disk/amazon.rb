@@ -1,6 +1,6 @@
 require "right_aws"
 
-module Cloudsync
+module Mir
   module Disk
     class Amazon
       
@@ -33,7 +33,7 @@ module Cloudsync
         open(to, 'w') do |file|
           @connection.get(bucket_name, self.class.key_name(from)) { |chunk| file.write(chunk) }
         end
-        Cloudsync.logger.info "Completed download '#{to}'"
+        Mir.logger.info "Completed download '#{to}'"
       end
       
       def connected?
@@ -46,7 +46,7 @@ module Cloudsync
       
       def write(file_path)
         @connection.put(bucket_name, self.class.key_name(file_path), File.open(file_path))
-        Cloudsync.logger.info "Completed upload #{file_path}"
+        Mir.logger.info "Completed upload #{file_path}"
       end
       
       private
@@ -54,13 +54,13 @@ module Cloudsync
           begin
             conn = RightAws::S3Interface.new(@access_key_id, @secret_access_key, {
               :multi_thread => true,
-              :logger => Cloudsync.logger
+              :logger => Mir.logger
             })
             @connection_success = true
             return conn
           rescue Exception => e
             @connection_success = false
-            Cloudsync.logger.error "Could not establish connection with S3: '#{e.message}'"
+            Mir.logger.error "Could not establish connection with S3: '#{e.message}'"
           end
         end
       

@@ -2,7 +2,7 @@ require 'active_record'
 require "active_support/inflector"
 
 # Manages database operations for application
-module Cloudsync
+module Mir
   class Index
     
     MIGRATIONS_PATH = File.join(File.dirname(__FILE__), "..", "..", "db", "migrate")
@@ -26,7 +26,7 @@ module Cloudsync
       ActiveRecord::Base.timestamped_migrations = false
       
       if options[:verbose]
-        ActiveRecord::Base.logger = Cloudsync.logger
+        ActiveRecord::Base.logger = Mir.logger
         ActiveRecord::Migration.verbose = true
       end
       
@@ -36,20 +36,20 @@ module Cloudsync
     
     # Scans the filesystem and flags any resources which need updating
     def update
-      Cloudsync.logger.info "Updating backup index for '#{sync_path}'"
+      Mir.logger.info "Updating backup index for '#{sync_path}'"
       Dir.glob(File.join(sync_path, "**", "*")) do |f|
         fname = relative_path(f)
         file = File.new(f)
         resource = Models::Resource.find_by_filename(fname)
 
         if resource.nil?
-          Cloudsync.logger.info "Adding file to index #{fname}"
+          Mir.logger.info "Adding file to index #{fname}"
           resource = Models::Resource.create_from_file_and_name(file, fname)
         else
           resource.flag_for_update unless resource.synchronized?(file)
         end                
       end
-      Cloudsync.logger.info "Index updated"
+      Mir.logger.info "Index updated"
     end
     
     private

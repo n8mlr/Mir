@@ -1,6 +1,6 @@
 require 'logger'
 
-module Cloudsync
+module Mir
   def self.logger=(logger)
     @@logger = logger
   end

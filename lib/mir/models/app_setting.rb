@@ -1,4 +1,4 @@
-module Cloudsync
+module Mir
   module Models
     class AppSetting < ActiveRecord::Base
       

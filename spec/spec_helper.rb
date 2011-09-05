@@ -1,4 +1,4 @@
-require "cloudsync"
+require "mir"
 
 RSpec.configure do |config|
   

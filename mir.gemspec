@@ -1,17 +1,17 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
-require "cloudsync/version"
+require "mir/version"
 
 Gem::Specification.new do |s|
-  s.name        = "cloudsync"
-  s.version     = Cloudsync.version
+  s.name        = "mir"
+  s.version     = Mir.version
   s.authors     = ["Nate Miller"]
   s.email       = ["nate@natemiller.org"]
   s.homepage    = ""
   s.summary     = %q{A utility for backing up resources}
   s.description = %q{A commandline tool useful for automating the back up of files to Amazon S3}
 
-  s.rubyforge_project = "cloudsync"
+  s.rubyforge_project = "mir"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

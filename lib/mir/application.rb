@@ -2,14 +2,14 @@ require "benchmark"
 require "fileutils"
 require "work_queue"
 
-module Cloudsync
+module Mir
   
   class Application
     
-    DEFAULT_SETTINGS_FILE_NAME = "cloudsync_settings.yml"
+    DEFAULT_SETTINGS_FILE_NAME = "mir_settings.yml"
     DEFAULT_BATCH_SIZE = 20
         
-    # Creates a new Cloudsync instance
+    # Creates a new Mir instance
     def self.start
       new.start
     end
@@ -17,13 +17,13 @@ module Cloudsync
     attr_reader :options, :disk, :index
     
     def initialize
-      @options = Cloudsync::Options.parse(ARGV)
-      Cloudsync.logger = Logger.new(options.log_destination)
+      @options = Mir::Options.parse(ARGV)
+      Mir.logger = Logger.new(options.log_destination)
     end
     
     def start
       if options.copy && options.flush
-        Cloudsync.logger.error "Conflicting options: Cannot copy from remote source with an empty file index"
+        Mir.logger.error "Conflicting options: Cannot copy from remote source with an empty file index"
         exit
       end
       
@@ -52,14 +52,14 @@ module Cloudsync
     
     private
       # Returns a path to the settings file. If the file was provided as an option it will always
-      # be returned. When no option is passed, the file 'cloudsync_settings.yml' will be searched for
-      # in the following paths: $HOME, /etc/cloudsync
+      # be returned. When no option is passed, the file 'mir_settings.yml' will be searched for
+      # in the following paths: $HOME, /etc/mir
       # @return [String] path to the settings or nil if none is found
       def find_settings_file
         if !options.settings_path.nil?
           return options.settings_path
         else
-          ["~", "/etc/cloudsync"].each do |dir|
+          ["~", "/etc/mir"].each do |dir|
             path = File.expand_path(File.join(dir, DEFAULT_SETTINGS_FILE_NAME))
             return path.to_s if File.exist?(path)
           end
@@ -69,10 +69,10 @@ module Cloudsync
       
       # Synchronize the local files to the remote disk
       def push(target)
-        Cloudsync.logger.info "Starting push operation"
+        Mir.logger.info "Starting push operation"
         
         if Models::AppSetting.backup_path != target
-          Cloudsync.logger.error "Target does not match directory stored in index"
+          Mir.logger.error "Target does not match directory stored in index"
           exit
         end
         
@@ -87,7 +87,7 @@ module Cloudsync
             end
           end
         end
-        Cloudsync.logger.info time
+        Mir.logger.info time
       end
       
       
@@ -111,7 +111,7 @@ module Cloudsync
       def handle_push_failures(resources)
         resources.each do |resource|
           if resource.in_progress?
-            Cloudsync.logger.info "Resource '#{resource.abs_path}' failed to upload"
+            Mir.logger.info "Resource '#{resource.abs_path}' failed to upload"
             resource.update_failure 
           end
         end
@@ -121,7 +121,7 @@ module Cloudsync
       def pull(target)
         Utils.try_create_dir(target)
         write_dir = Dir.new(target)
-        Cloudsync.logger.info "Copying remote disk to #{write_dir.path} using #{config.max_threads} threads"
+        Mir.logger.info "Copying remote disk to #{write_dir.path} using #{config.max_threads} threads"
         
         time = Benchmark.measure do 
           queue = WorkQueue.new(config.max_threads)
@@ -140,7 +140,7 @@ module Cloudsync
             queue.join
           end
         end
-        Cloudsync.logger.info time
+        Mir.logger.info time
       end
           
   end

@@ -2,10 +2,10 @@ require 'optparse'
 require 'yaml'
 require 'ostruct'
 
-module Cloudsync
+module Mir
   class Options
     
-    USAGE_BANNER = "Usage: cloudsync [options] [settings_file_path] [target]"
+    USAGE_BANNER = "Usage: mir [options] [settings_file_path] [target]"
     
     def self.parse(args)
       options = OpenStruct.new
@@ -48,7 +48,7 @@ module Cloudsync
         end
         
         opts.on_tail("--version", "Show version") do
-          puts Cloudsync.version
+          puts Mir.version
           exit
         end
       end
