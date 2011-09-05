@@ -44,7 +44,7 @@ module Mir
         resource = Models::Resource.find_by_filename(fname)
 
         if resource.nil?
-          Mir.logger.info "Adding file to index #{fname}"
+          Mir.logger.debug "Adding file to index #{fname}"
           resource = Models::Resource.create_from_file_and_name(file, fname)
         else
           resource.flag_for_update unless resource.synchronized?(file)

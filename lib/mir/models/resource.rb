@@ -68,7 +68,9 @@ module Mir
       
       # Places the resource into a queueble state
       def flag_for_update
-        update_attributes :queued => true, :checksum => Digest::MD5.file(abs_path).to_s
+        update_attributes :queued => true, 
+                          :checksum => Digest::MD5.file(abs_path).to_s,
+                          :last_modified => File.new(abs_path).ctime
       end
       
       def start_progress
