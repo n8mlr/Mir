@@ -1,3 +1,5 @@
+require "right_aws"
+
 module Cloudsync
   module Disk
     class Amazon

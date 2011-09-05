@@ -34,7 +34,7 @@ module Cloudsync
       rebuild if !tables_created? or options[:force_flush]
     end
     
-    # Updates the index for the file directory path
+    # Scans the filesystem and flags any resources which need updating
     def update
       Cloudsync.logger.info "Updating backup index for '#{sync_path}'"
       Dir.glob(File.join(sync_path, "**", "*")) do |f|
@@ -42,11 +42,11 @@ module Cloudsync
         file = File.new(f)
         resource = Models::Resource.find_by_filename(fname)
 
-        if !resource
+        if resource.nil?
           Cloudsync.logger.info "Adding file to index #{fname}"
           resource = Models::Resource.create_from_file_and_name(file, fname)
         else
-          Cloudsync.logger.info "#{fname} is out of sync" unless resource.synchronized?(file)
+          resource.flag_for_update unless resource.synchronized?(file)
         end                
       end
       Cloudsync.logger.info "Index updated"

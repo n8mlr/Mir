@@ -1,3 +1,7 @@
+require 'optparse'
+require 'yaml'
+require 'ostruct'
+
 module Cloudsync
   class Options
     

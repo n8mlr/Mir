@@ -5,8 +5,6 @@ module Cloudsync
   module Models
     class Resource < ActiveRecord::Base
       
-      scope :pending_jobs, select(:id).where(:queued => true)
-      
       # Builds a resource for the backup index from a file
       # @param [File] a file object
       # @param [String] the name of the file on the remote disk
@@ -22,9 +20,14 @@ module Cloudsync
                :is_directory => is_dir)
       end
       
+      # Returns true when jobs are still queued
+      def self.pending_jobs?
+        self.where(:queued => true).size > 0
+      end
+      
       # Yields a Models::Resource object that needs to be synchronized
       def self.pending_sync_groups(response_size, &block)
-        qry = lambda { Resource.where(:queued => true) }
+        qry = lambda { Resource.where(:queued => true, :is_directory => false) }
         chunked_groups(qry, response_size) { |chunk| yield chunk }
       end
       
@@ -55,6 +58,17 @@ module Cloudsync
           return Digest::MD5.file(file).to_s == self.checksum
         end
         false
+      end
+      
+      # Whether the item can be synchronized to a remote disk
+      # @returns [Boolean] true when the resource is not a directory
+      def synchronizable?
+        !is_directory?
+      end
+      
+      # Places the resource into a queueble state
+      def flag_for_update
+        update_attributes :queued => true, :checksum => Digest::MD5.file(abs_path).to_s
       end
       
       def start_progress

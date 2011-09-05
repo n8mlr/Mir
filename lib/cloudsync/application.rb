@@ -1,4 +1,6 @@
-require 'fileutils'
+require "benchmark"
+require "fileutils"
+require "work_queue"
 
 module Cloudsync
   
@@ -12,7 +14,7 @@ module Cloudsync
       new.start
     end
     
-    attr_reader :options
+    attr_reader :options, :disk, :index
     
     def initialize
       @options = Cloudsync::Options.parse(ARGV)
@@ -65,38 +67,54 @@ module Cloudsync
         nil
       end
       
-      # Synchronize the local files to the disk
+      # Synchronize the local files to the remote disk
       def push(target)
         Cloudsync.logger.info "Starting push operation"
+        
         if Models::AppSetting.backup_path != target
           Cloudsync.logger.error "Target does not match directory stored in index"
           exit
         end
-        # TODO - need to do a check here to see if the target directory has changed
-        # from what we've stored locally. If so, we'll need to rebuild the index manually
         
-        @index.update
+        index.update
+        
         time = Benchmark.measure do
           queue = WorkQueue.new(config.max_threads)
-          
-          Models::Resource.pending_sync_groups(DEFAULT_BATCH_SIZE) do |resources|
-            resources.each do |resource|
-              next if resource.is_directory?
-              queue.enqueue_b do
-                begin
-                  resource.start_progress
-                  @disk.write resource.abs_path
-                  resource.update_success
-                rescue Exception => e
-                  Cloudsync.logger.error e.message
-                  resource.update_failure
-                end
-              end
+          while Models::Resource.pending_jobs? do
+            Models::Resource.pending_sync_groups(DEFAULT_BATCH_SIZE) do |resources|
+              push_group(queue, resources)
+              handle_push_failures(resources)
             end
-            queue.join
           end
         end
         Cloudsync.logger.info time
+      end
+      
+      
+      # Uploads a collection of resouces. Blocks until all items in queue have been processed
+      # @param [WorkQueue] a submission queue to manage resource uploads
+      # @param [Array] an array of Models::Resource objects that need to be uploaded
+      def push_group(work_queue, resources)
+        resources.each do |resource|
+          work_queue.enqueue_b do
+            resource.start_progress
+            disk.write resource.abs_path
+            resource.update_success
+          end
+        end
+        work_queue.join
+      end
+      
+      # Scans a collection of resources for jobs that did no complete successfully and flags them
+      # for resubmission
+      # @param [Array] an array of Models::Resources
+      def handle_push_failures(resources)
+        resources.each do |resource|
+          if resource.in_progress?
+            Cloudsync.logger.info "Resource '#{resource.abs_path}' failed to upload"
+            resource.update_failure 
+          end
+        end
       end
       
       # Copy the remote disk contents into the specified directory
