@@ -5,9 +5,13 @@ require 'ostruct'
 module Mir
   class Options
     
-    USAGE_BANNER = "Usage: mir [options] [settings_file_path] [target]"
+    USAGE_BANNER = "Usage: mir [options] [target]"
     
     def self.parse(args)
+      if args.size < 1
+        puts USAGE_BANNER
+        exit
+      end
       options = OpenStruct.new
       options.debug = false
       options.verbose = false
@@ -28,6 +32,10 @@ module Mir
         
         opts.on("-c", "--copy", "Copy the remote files to target") do
           options.copy = true
+        end
+        
+        opts.on("-d", "--debug", "Enable debug logging") do
+          options.debug = true
         end
         
         opts.on("--settings", String, "The YAML settings file") do |path|

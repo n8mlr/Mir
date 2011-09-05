@@ -19,6 +19,11 @@ module Mir
     def initialize
       @options = Mir::Options.parse(ARGV)
       Mir.logger = Logger.new(options.log_destination)
+      Mir.logger.level = if options.debug
+        Logger::DEBUG
+      else
+        Logger::INFO
+      end
     end
     
     def start

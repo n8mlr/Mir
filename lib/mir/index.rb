@@ -38,6 +38,7 @@ module Mir
     def update
       Mir.logger.info "Updating backup index for '#{sync_path}'"
       Dir.glob(File.join(sync_path, "**", "*")) do |f|
+        Mir.logger.debug "Index: evaluating '#{f}'"
         fname = relative_path(f)
         file = File.new(f)
         resource = Models::Resource.find_by_filename(fname)
