@@ -2,6 +2,9 @@
 module Mir
   module Disk
     
+    class IncompleteTransmission < StandardError ; end
+    class RemoteFileNotFound < StandardError ; end
+    
     # Returns a disk object from the settings specified
     def self.fetch(settings = {})
       case settings[:type]

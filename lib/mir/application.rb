@@ -101,6 +101,7 @@ module Mir
       # @param [Array] an array of Models::Resource objects that need to be uploaded
       def push_group(work_queue, resources)
         resources.each do |resource|
+          Mir.logger.debug "Enqueueing #{resource.filename}"
           work_queue.enqueue_b do
             resource.start_progress
             disk.write resource.abs_path
@@ -139,7 +140,14 @@ module Mir
               if resource.is_directory?  
                 Utils.try_create_dir(dest)
               elsif !resource.synchronized?(dest)
-                queue.enqueue_b { @disk.copy(resource.abs_path, dest) }
+                queue.enqueue_b do 
+                  @disk.copy(resource.abs_path, dest)
+                  if resource.synchronized?(dest)
+                    Mir.logger.info "Successful download #{dest}"
+                  else
+                    Mir.logger.error "Incomplete download #{dest}"
+                  end
+                end
               end
             end
             queue.join

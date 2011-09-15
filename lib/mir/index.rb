@@ -39,6 +39,7 @@ module Mir
       Mir.logger.info "Updating backup index for '#{sync_path}'"
       Dir.glob(File.join(sync_path, "**", "*")) do |f|
         Mir.logger.debug "Index: evaluating '#{f}'"
+        next if File.directory? (f)
         fname = relative_path(f)
         file = File.new(f)
         resource = Models::Resource.find_by_filename(fname)
@@ -46,9 +47,9 @@ module Mir
         if resource.nil?
           Mir.logger.debug "Adding file to index #{fname}"
           resource = Models::Resource.create_from_file_and_name(file, fname)
-        else
-          resource.flag_for_update unless resource.synchronized?(file)
-        end                
+        elsif !resource.synchronized?(file)
+          resource.flag_for_update
+        end
       end
       Mir.logger.info "Index updated"
     end

@@ -51,20 +51,12 @@ module Mir
       
       # Compares a file asset to the index to deterimine whether the file needs to be updated
       # @param [String] a path to a file or directory
-      # @returns [Boolean] whether the file and index are in sync with each other
-      def synchronized?(file, skip_checksum = true)
-        in_sync = false
-        if File.exists? file
-          if File.directory? file
-            in_sync = true
-          elsif skip_checksum
-            fob = File.new(file)
-            in_sync = (fob.ctime == self.last_modified and fob.size == self.size)
-          else
-            in_sync = Digest::MD5.file(file).to_s == self.checksum
-          end
+      def synchronized?(file)
+        if !File.exist?(file) or in_progress? or queued?
+          return false
+        else
+          Digest::MD5.file(file).to_s == self.checksum
         end
-        in_sync
       end
       
       # Whether the item can be synchronized to a remote disk
