@@ -13,18 +13,18 @@ Mir from other Ruby S3 synchronization tools currently available are:
 
 Mir uses a YAML file for configuration settings. Unless you specify otherwise, Mir will look for the file  'mir_settings.yml' in the HOME and /etc/mir directories.
 
-  settings:
-    max_upload_retries: 5
-    max_threads: 5
-    cloud_provider:
-      type: s3
-      bucket_name: gotham_backup
-      access_key_id: YOUR_ACCESS_KEY
-      secret_access_key: YOUR_SECRET_ACCESS_KEY
-      chunk_size: 5242880
-    database:
-      adapter: sqlite3
-      database: foobar.db
+    settings:
+      max_upload_retries: 5
+      max_threads: 5
+      cloud_provider:
+        type: s3
+        bucket_name: gotham_backup
+        access_key_id: YOUR_ACCESS_KEY
+        secret_access_key: YOUR_SECRET_ACCESS_KEY
+        chunk_size: 5242880
+      database:
+        adapter: sqlite3
+        database: foobar.db
 
 Configuration keys:
 
