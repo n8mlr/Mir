@@ -37,6 +37,8 @@ module Mir
     # Scans the filesystem and flags any resources which need updating
     def update
       Mir.logger.info "Updating backup index for '#{sync_path}'"
+      Models::AppSetting.last_indexed_at = @last_indexed_at = DateTime.now
+      
       Dir.glob(File.join(sync_path, "**", "*")) do |f|
         Mir.logger.debug "Index: evaluating '#{f}'"
         next if File.directory? (f)
@@ -50,8 +52,25 @@ module Mir
         elsif !resource.synchronized?(file)
           resource.flag_for_update
         end
+        resource.update_attribute(:last_indexed_at, last_indexed_at)
       end
+      
       Mir.logger.info "Index updated"
+    end
+    
+    def orphans
+      Models::Resource.not_indexed_on(last_indexed_at)
+    end
+    
+    def last_indexed_at
+      @last_indexed_at ||= Models::AppSetting.last_indexed_at
+    end
+    
+    
+    ##
+    # Removes any files from the index that are no longer present locally
+    def clean!
+      Models::Resource.delete_all_except(last_indexed_at)
     end
     
     private
@@ -65,10 +84,12 @@ module Mir
         tables.each { |t| ActiveRecord::Migration.drop_table(t.table_name) if t.table_exists? }
         ActiveRecord::Migration.drop_table(:schema_migrations) if @connection.table_exists? :schema_migrations
         ActiveRecord::Migrator.migrate MIGRATIONS_PATH
-        Models::AppSetting.create(:name => Models::AppSetting::SYNC_PATH, :value => sync_path)
-        Models::AppSetting.create(:name => Models::AppSetting::INSTALL_DATE, :value => DateTime.now.to_s)
+        Models::AppSetting.initialize_table(sync_path)
       end
       
+      
+      ##
+      # TODO: no reason to lazy load these activemodels
       def load_tables
         @tables = []
         models = File.join(File.dirname(__FILE__), "models", "*.rb")

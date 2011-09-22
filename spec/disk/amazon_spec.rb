@@ -17,14 +17,4 @@ describe Mir::Disk::Amazon do
     disk.chunk_size.should == 50*2**20
   end
   
-  it "should use a chunked copy when files exceed the chunk size limit" do
-    big_file = mock("foo", :size => disk.chunk_size + 1)
-    File.should_receive(:new).and_return(big_file)
-    disk.write(big_file)
-  end
-  
-  describe "uploading files" do
-
-  end
-  
 end

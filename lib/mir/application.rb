@@ -92,11 +92,16 @@ module Mir
             end
           end
         end
+        
+        # If any assets have been deleted locally, also remove them from remote disk
+        index.orphans.each { |orphan| disk.delete(orphan.abs_path) }
+        index.clean! # Remove orphans from index
         Mir.logger.info time
       end
       
-      
+      ##
       # Uploads a collection of resouces. Blocks until all items in queue have been processed
+      #
       # @param [WorkQueue] a submission queue to manage resource uploads
       # @param [Array] an array of Models::Resource objects that need to be uploaded
       def push_group(work_queue, resources)

@@ -84,10 +84,24 @@ module Mir
         key = self.class.s3_key(file_path)
         Mir.logger.info "Deleting remote object #{file_path}"
         
-        if File.size(file_path) <= chunk_size
-          connection.delete(bucket_name, key)
-        else
+        # if the file no longer exists loca
+        
+        # if File.size(file_path) <= chunk_size
+        #   connection.delete(bucket_name, key)
+        # else
+        #   delete_parts(key)
+        # end
+        begin
+          remote_file = MultiPartFile.new(self, key)
+        rescue Disk::RemoteFileNotFound => e
+          Mir.logger.info "Could not find remote resource '#{key}'"
+          return false
+        end
+        
+        if remote_file.multipart?
           delete_parts(key)
+        else
+          connection.delete(bucket_name, key)
         end
       end
       
@@ -202,7 +216,6 @@ module Mir
         elsif disk.key_exists?(multiname)
           @multipart = true
         else
-          Mir.logger.error "Could not find key for object named '#{name}'"
           raise Disk::RemoteFileNotFound
         end
       end

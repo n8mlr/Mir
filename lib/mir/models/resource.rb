@@ -5,6 +5,8 @@ module Mir
   module Models
     class Resource < ActiveRecord::Base
       
+      scope :not_indexed_on, lambda { |date| where("last_indexed_at != ?", date) }
+      
       # Builds a resource for the backup index from a file
       # @param [File] a file object
       # @param [String] the name of the file on the remote disk
@@ -18,6 +20,14 @@ module Mir
                :queued => !is_dir,
                :checksum => is_dir ? nil : Digest::MD5.file(file).to_s,
                :is_directory => is_dir)
+      end
+      
+      ##
+      # Removes all resources not that were not indexed on the specified date
+      #
+      # @param [DateTime]
+      def self.delete_all_except(index_date)
+        not_indexed_on(index_date).delete_all
       end
       
       # Returns true when jobs are still queued
