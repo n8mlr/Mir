@@ -36,16 +36,17 @@ Configuration keys:
 
 ## Usage
 
-1. Install the gem:
-  
+Install the gem:
+
   gem install mir
   
-2. Create mir_settings.yml in the HOME or /etc/mir directories. Adjust to taste
-3. Push your local directory to S3
+Create mir_settings.yml in the HOME or /etc/mir directories. Adjust to taste
+
+Push your local directory to S3
   
   mir ~/mydirectory
   
-4. To retrieve your remote directory
+To retrieve your remote directory
   
   mir -c ~/mydirectory
 
