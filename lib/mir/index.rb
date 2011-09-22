@@ -1,13 +1,19 @@
 require 'active_record'
 require "active_support/inflector"
 
-# Manages database operations for application
+# The index class is responsible for maintaining knowledge of files uploaded
+# onto the remote file system. The index does this by scanning the directory to
+# be synchronized and evaluating whether a file needs to be uploaded or has changed
+# since the last indexing date
+
 module Mir
   class Index
     
     MIGRATIONS_PATH = File.join(File.dirname(__FILE__), "..", "..", "db", "migrate")
     
     # Returns a databse object used to connect to the indexing database
+    #
+    # @param [String] the absolute path of the directory to be synchronized
     # @param [Hash] database configuration settings. See ActiveRecord#Base::establish_connection
     def initialize(sync_path, connection_params)
       @sync_path = sync_path
@@ -16,7 +22,9 @@ module Mir
     
     attr_reader :sync_path
     
+    #
     # Creates necessary database and tables if this is the first time connecting
+    #
     # @option opts [Boolean] :verbose Enable on ActiveRecord reporting
     # @option opts [Boolean] :force_flush Rebuild index no matter what
     def setup(options = {})
@@ -34,7 +42,9 @@ module Mir
       rebuild if !tables_created? or options[:force_flush]
     end
     
-    # Scans the filesystem and flags any resources which need updating
+    ##
+    # Scans the synchronization path and evaluates whether a resource has changed
+    # since the last index or is new and needs to be added to the index.
     def update
       Mir.logger.info "Updating backup index for '#{sync_path}'"
       Models::AppSetting.last_indexed_at = @last_indexed_at = DateTime.now
@@ -56,6 +66,11 @@ module Mir
       Mir.logger.info "Index updated"
     end
     
+    ##
+    # Returns any files not present since the last re-indexing. This is useful
+    # for finding files that have been deleted post-index.
+    # 
+    # @return [Mir::Models::Resource]
     def orphans
       Models::Resource.not_indexed_on(last_indexed_at)
     end

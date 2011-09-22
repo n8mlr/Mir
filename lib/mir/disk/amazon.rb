@@ -6,10 +6,18 @@ module Mir
   module Disk
     class Amazon
       
-      DEFAULT_CHUNK_SIZE = 5*(2**20)
+      # This is the default size in bytes at which files will be split and stored
+      # on S3. From trial and error, 5MB seems to be a good default size for chunking
+      # large files.
+      DEFAULT_CHUNK_SIZE = 5*(2**20) 
       
       attr_reader :bucket_name, :connection
       
+      #
+      # Converts a path name to a key that can be stored on s3
+      # 
+      # @param [String] the path to the file
+      # @return [String] an S3-safe key with leading slashes removed
       def self.s3_key(path)
         if path[0] == File::SEPARATOR
           path[1..-1] 
@@ -161,6 +169,7 @@ module Mir
       end
       
       # Yields a temp file object that is immediately discarded after use
+      #
       # @param [String] the filename
       # @yields [Tempfile]
       def temp_file(name, &block)          
@@ -196,7 +205,7 @@ module Mir
     
     # Used to hide the inner details of multipart file uploads and downloads. It is important
     # that this class does not throw any exceptions as these exceptions may be swallowed further
-    # up the chain by worker threads
+    # up the stack by worker threads
     class MultiPartFile
       
       # @param [Disk] the remote disk
