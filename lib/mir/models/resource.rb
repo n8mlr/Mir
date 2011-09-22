@@ -59,10 +59,16 @@ module Mir
         end
       end
       
+      #
       # Compares a file asset to the index to deterimine whether the file needs to be updated
+      #
       # @param [String] a path to a file or directory
+      # @return [Boolean] returns true when the file's checksum is equal to the value stored in
+      #   the index, or when the file is a directory
       def synchronized?(file)
-        if !File.exist?(file) or in_progress? or queued?
+        if File.directory?(file)
+          return true
+        elsif !File.exist?(file) or in_progress? or queued?
           return false
         else
           Digest::MD5.file(file).to_s == self.checksum

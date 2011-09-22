@@ -22,10 +22,13 @@ module Mir
       Mir.logger.level = if options.debug
         Logger::DEBUG
       else
-        Logger::INFO
+        Logger::ERROR
       end
     end
     
+    ##
+    # Begins the synchronization operation after initializing the file index and remote storage
+    # container
     def start
       if options.copy && options.flush
         Mir.logger.error "Conflicting options: Cannot copy from remote source with an empty file index"
@@ -46,13 +49,19 @@ module Mir
       
       options.copy ? pull(param_path) : push(param_path)
     end
-  
+    
+    ##
+    # Returns a global configuration instance
+    # 
+    # @return [Mir::Config]
     def self.config
       @@config
     end
     
+    ##
+    # Alias for +config
     def config
-      @@config
+      self.class.config
     end
     
     private
@@ -72,7 +81,10 @@ module Mir
         nil
       end
       
+      ##
       # Synchronize the local files to the remote disk
+      #
+      # @param [String] the absolute path of the folder that will be synchronized remotely
       def push(target)
         Mir.logger.info "Starting push operation"
         
@@ -96,6 +108,7 @@ module Mir
         # If any assets have been deleted locally, also remove them from remote disk
         index.orphans.each { |orphan| disk.delete(orphan.abs_path) }
         index.clean! # Remove orphans from index
+        puts "Completed push operation #{time}"
         Mir.logger.info time
       end
       
@@ -111,13 +124,16 @@ module Mir
             resource.start_progress
             disk.write resource.abs_path
             resource.update_success
+            puts "Pushed #{resource.abs_path}"
           end
         end
         work_queue.join
       end
       
+      #
       # Scans a collection of resources for jobs that did no complete successfully and flags them
       # for resubmission
+      #
       # @param [Array] an array of Models::Resources
       def handle_push_failures(resources)
         resources.each do |resource|
@@ -141,14 +157,15 @@ module Mir
           # otherwise download the file
           Models::Resource.ordered_groups(DEFAULT_BATCH_SIZE) do |resources|
             resources.each do |resource|
-              dest = File.join(write_dir.path, resource.filename)          
+              dest = File.join(write_dir.path, resource.filename)
               if resource.is_directory?  
                 Utils.try_create_dir(dest)
               elsif !resource.synchronized?(dest)
                 queue.enqueue_b do 
-                  @disk.copy(resource.abs_path, dest)
+                  disk.copy(resource.abs_path, dest)
                   if resource.synchronized?(dest)
                     Mir.logger.info "Successful download #{dest}"
+                    puts "Pulled #{dest}"
                   else
                     Mir.logger.error "Incomplete download #{dest}"
                   end
@@ -159,6 +176,7 @@ module Mir
           end
         end
         Mir.logger.info time
+        puts "Completed pull operation #{time}"
       end
           
   end

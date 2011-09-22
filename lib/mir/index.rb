@@ -40,8 +40,6 @@ module Mir
       Models::AppSetting.last_indexed_at = @last_indexed_at = DateTime.now
       
       Dir.glob(File.join(sync_path, "**", "*")) do |f|
-        Mir.logger.debug "Index: evaluating '#{f}'"
-        next if File.directory? (f)
         fname = relative_path(f)
         file = File.new(f)
         resource = Models::Resource.find_by_filename(fname)

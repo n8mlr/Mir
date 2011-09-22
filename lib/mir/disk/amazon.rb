@@ -6,7 +6,7 @@ module Mir
   module Disk
     class Amazon
       
-      DEFAULT_CHUNK_SIZE = 50*(2**20)
+      DEFAULT_CHUNK_SIZE = 5*(2**20)
       
       attr_reader :bucket_name, :connection
       
@@ -83,18 +83,11 @@ module Mir
       def delete(file_path)
         key = self.class.s3_key(file_path)
         Mir.logger.info "Deleting remote object #{file_path}"
-        
-        # if the file no longer exists loca
-        
-        # if File.size(file_path) <= chunk_size
-        #   connection.delete(bucket_name, key)
-        # else
-        #   delete_parts(key)
-        # end
+
         begin
           remote_file = MultiPartFile.new(self, key)
         rescue Disk::RemoteFileNotFound => e
-          Mir.logger.info "Could not find remote resource '#{key}'"
+          Mir.logger.warn "Could not find remote resource '#{key}'"
           return false
         end
         
@@ -148,8 +141,9 @@ module Mir
       # @param [String] the S3 key name for the object
       # @return [Boolean] whether the MD5 hash of the local file matches the remote value
       def equals?(filename, key)
-        remote_file = RemoteFile.new(connection, bucket_name, key)
-        remote_file.md5 == Digest::MD5.file(filename).to_s
+        meta_ob = connection.retrieve_object(:bucket => bucket_name, :key => key)
+        remote_md5 = meta_ob[:headers]["etag"].slice(4..-5)
+        Digest::MD5.file(filename).to_s == remote_md5
       end
       
       def try_connect
@@ -210,7 +204,7 @@ module Mir
       def initialize(disk, name)
         @disk, @name = disk, name
         multiname = Utils.filename_with_sequence(name, 1)
-        
+                  
         if disk.key_exists?(name)
           @multipart = false
         elsif disk.key_exists?(multiname)
@@ -222,7 +216,7 @@ module Mir
       
       attr_reader :disk, :name
       
-      # Whether the resource is broken into chunks
+      # Whether the resource is broken into chunks on the remote store
       def multipart?
         @multipart
       end
@@ -231,11 +225,9 @@ module Mir
       # sequentially in pieces
       def get(dest)
         output = File.new(dest, "wb")
-        
         begin
           if multipart?
             seq = 1
-            
             while part = Utils.filename_with_sequence(name, seq) do
               break unless disk.key_exists? part
               output.write disk.read(part)
@@ -250,36 +242,7 @@ module Mir
           output.close
         end
       end
-      
-      
     end
     
-    # Used for managing information of objects stored on S3
-    class RemoteFile
-      
-      def initialize(connection, bucket, key)
-        @connection, @bucket, @key = connection, bucket, key
-        @meta = nil
-      end
-      
-      attr_accessor :key
-      
-      # Returns information about the object
-      #
-      # @return [Hash]
-      def meta
-        @meta ||= @connection.retrieve_object(:bucket => @bucket, :key => key)
-      end
-      
-      # Returns the MD5 checksum for the remote object. MD5 checksums are returned 
-      # by amazon in the format '["\"XXXX\""]', this method strips the unnecessary
-      # characters
-      #
-      # @return [String] the checksum
-      def md5
-        meta[:headers]["etag"].slice(4..-5)
-      end
-
-    end
   end
 end
