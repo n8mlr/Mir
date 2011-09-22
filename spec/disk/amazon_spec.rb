@@ -12,9 +12,9 @@ describe Mir::Disk::Amazon do
   
   let(:disk) { Mir::Disk::Amazon.new(settings) }
     
-  it "should default to 50mb chunk size for uploads" do
+  it "should default to 5mb chunk size for uploads" do
     disk = Mir::Disk::Amazon.new(settings)
-    disk.chunk_size.should == 50*2**20
+    disk.chunk_size.should == 5*2**20
   end
   
 end

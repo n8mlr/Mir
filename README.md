@@ -9,6 +9,8 @@ Mir from other Ruby S3 synchronization tools currently available are:
 * Creates checksum comparisons on reads and writes to ensure complete end-to-end transmission
 * Provides a simple command line interface for pushing and pulling files
 
+The inspiration for this tool is to provide similar functionality to the classic Rsync command, but to utilize cloud-based storage providers.
+
 ## Configuration 
 
 Mir uses a YAML file for configuration settings. Unless you specify otherwise, Mir will look for the file  'mir_settings.yml' in the HOME and /etc/mir directories.
@@ -52,4 +54,4 @@ To retrieve your remote directory
 
 ## Notes
 
-This project is considered in an alpha state and is not ready for use in any sort of production environment.
+This project is considered in an alpha state and is not ready for use in any sort of production environment. Additionally, this has an embarrassingly small number of specs which should encourage you not to use this for your critical storage needs. 
