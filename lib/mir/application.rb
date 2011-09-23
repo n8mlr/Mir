@@ -146,33 +146,39 @@ module Mir
       
       # Copy the remote disk contents into the specified directory
       def pull(target)
-        Utils.try_create_dir(target)
-        write_dir = Dir.new(target)
+        write_dir = Utils.try_create_dir(target)
         Mir.logger.info "Copying remote disk to #{write_dir.path} using #{config.max_threads} threads"
         
         time = Benchmark.measure do 
           queue = WorkQueue.new(config.max_threads)
-        
-          # loop through each resource. If the resource is a directory, create the path
-          # otherwise download the file
+          
           Models::Resource.ordered_groups(DEFAULT_BATCH_SIZE) do |resources|
-            resources.each do |resource|
-              dest = File.join(write_dir.path, resource.filename)
-              if resource.is_directory?  
-                Utils.try_create_dir(dest)
-              elsif !resource.synchronized?(dest)
-                queue.enqueue_b do 
-                  disk.copy(resource.abs_path, dest)
-                  if resource.synchronized?(dest)
-                    Mir.logger.info "Successful download #{dest}"
-                    puts "Pulled #{dest}"
-                  else
-                    Mir.logger.error "Incomplete download #{dest}"
+            download_attempts = resources.inject({}) do |set, resource|
+              set[resource.abs_path] = 0
+              set
+            end
+            
+            while !download_attempts.empty? do
+              resources.each do |r|
+                dest = File.join(write_dir.path, r.filename)
+                if r.is_directory?
+                  Utils.try_create_dir(dest)
+                elsif download_attempts[r.abs_path] >= 3
+                  next
+                elsif !r.synchronized?(dest)
+                  queue.enqueue_b do
+                    disk.copy(r.abs_path, dest)
+                    if r.synchronized?(dest)
+                      puts "Pulled #{dest}"
+                      FileUtils.chmod_R 0755, dest
+                      download_attempts.delete(r.abs_path)
+                    end
                   end
                 end
+               download_attempts.delete(r.abs_path)
               end
+              queue.join              
             end
-            queue.join
           end
         end
         Mir.logger.info time

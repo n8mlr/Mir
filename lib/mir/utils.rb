@@ -11,6 +11,7 @@ module Mir
     
     def self.try_create_dir(path)
       Dir.mkdir(path) unless Dir.exist?(path)
+      Dir.new(path)
     end
     
     # Splits a file into pieces that may be reassembled later
