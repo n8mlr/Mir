@@ -16,7 +16,8 @@ The inspiration for this tool is to provide similar functionality to the classic
 Mir uses a YAML file for configuration settings. Unless you specify otherwise, Mir will look for the file  'mir_settings.yml' in the HOME and /etc/mir directories.
 
     settings:
-      max_upload_retries: 5
+      max_upload_attempts: 5
+      max_download_attempts: 5
       max_threads: 5
       cloud_provider:
         type: s3

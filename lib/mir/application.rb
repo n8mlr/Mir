@@ -7,7 +7,7 @@ module Mir
   class Application
     
     DEFAULT_SETTINGS_FILE_NAME = "mir_settings.yml"
-    DEFAULT_BATCH_SIZE = 20
+    DEFAULT_BATCH_SIZE = 100
         
     # Creates a new Mir instance
     def self.start
@@ -148,41 +148,51 @@ module Mir
       def pull(target)
         write_dir = Utils.try_create_dir(target)
         Mir.logger.info "Copying remote disk to #{write_dir.path} using #{config.max_threads} threads"
+        failed_downloads = []
         
         time = Benchmark.measure do 
           queue = WorkQueue.new(config.max_threads)
           
           Models::Resource.ordered_groups(DEFAULT_BATCH_SIZE) do |resources|
-            download_attempts = resources.inject({}) do |set, resource|
-              set[resource.abs_path] = 0
-              set
-            end
+            # Track the number of download attempts made per resource
+            batch = resources.inject({}) { |set, resource| set[resource] = 0; set }
             
-            while !download_attempts.empty? do
-              resources.each do |r|
-                dest = File.join(write_dir.path, r.filename)
-                if r.is_directory?
+            while !batch.empty? do
+              batch.each do |resource, attempts|
+                dest = File.join(write_dir.path, resource.filename)
+                if resource.is_directory?
                   Utils.try_create_dir(dest)
-                elsif download_attempts[r.abs_path] >= 3
-                  next
-                elsif !r.synchronized?(dest)
+                  batch.delete(resource)
+                elsif attempts >= config.max_download_attempts
+                  Mir.logger.info "Resource #{resource.abs_path} failed to download"
+                  failed_downloads << resource
+                  batch.delete(resource)
+                elsif resource.synchronized? dest
+                  Mir.logger.debug "Skipping already downloaded file #{resource.abs_path}"
+                  batch.delete(resource)
+                else
+                  batch[resource] += 1
                   queue.enqueue_b do
-                    disk.copy(r.abs_path, dest)
-                    if r.synchronized?(dest)
+                    Mir.logger.debug "Beginning download of #{resource.abs_path}"
+                    disk.copy(resource.abs_path, dest)
+                    if resource.synchronized? dest
+                      FileUtils.chmod_R 0755, dest # allow binaries to execute
                       puts "Pulled #{dest}"
-                      FileUtils.chmod_R 0755, dest
-                      download_attempts.delete(r.abs_path)
+                      batch.delete(resource)
                     end
                   end
                 end
-               download_attempts.delete(r.abs_path)
               end
-              queue.join              
+              queue.join
             end
           end
         end
         Mir.logger.info time
         puts "Completed pull operation #{time}"
+        unless failed_downloads.empty?
+          puts "The following files failed to download after several attempts:\n}"
+          puts failed_downloads.join("\n")
+        end
       end
           
   end

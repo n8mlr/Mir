@@ -101,7 +101,7 @@ module Mir
       
       def update_failure
         num_times_failed = times_failed + 1
-        will_requeue = (num_times_failed < Mir::Application.config.max_upload_retries)
+        will_requeue = (num_times_failed < Mir::Application.config.max_upload_attempts)
         update_attributes :times_failed => num_times_failed, :in_progress => false, :queued => will_requeue
       end
       
