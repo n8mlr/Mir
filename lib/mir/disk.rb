@@ -6,6 +6,7 @@ module Mir
     class RemoteFileNotFound < StandardError ; end
     
     # Returns a disk object from the settings specified
+    # @return [Mir::Disk]
     def self.fetch(settings = {})
       case settings[:type]
       when "s3"

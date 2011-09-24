@@ -1,0 +1,785 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Mir::Index
+  
+    &mdash; Documentation by YARD 0.7.2
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" media="screen" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  relpath = '..';
+  if (relpath != '') relpath += '/';
+</script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+    
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (I)</a> &raquo; 
+    <span class='title'><span class='object_link'><a href="../Mir.html" title="Mir (module)">Mir</a></span></span>
+     &raquo; 
+    <span class="title">Index</span>
+  
+  
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a id="class_list_link" href="#">Class List</a>
+  
+    <a id="method_list_link" href="#">Method List</a>
+  
+    <a id="file_list_link" href="#">File List</a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+    
+    <iframe id="search_frame"></iframe>
+    
+    <div id="content"><h1>Class: Mir::Index
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Mir::Index</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/mir/index.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="MIGRATIONS_PATH-constant" class="">MIGRATIONS_PATH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>File</span><span class='period'>.</span><span class='id join'>join</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id dirname'>dirname</span><span class='lparen'>(</span><span class='kw'>__FILE__</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>..</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>..</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>db</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>migrate</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span></pre></dd>
+      
+    </dl>
+  
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sync_path-instance_method" title="#sync_path (instance method)">- (Object) <strong>sync_path</strong> </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title readonly">readonly</span>
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Returns the value of attribute sync_path.
+</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#clean%21-instance_method" title="#clean! (instance method)">- (void) <strong>clean!</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Removes any files from the index that are no longer present locally.
+</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Mir::Index) <strong>initialize</strong>(sync_path, connection_params) </a>
+    
+
+    
+  </span>
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Returns a databse object used to connect to the indexing database.
+</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#last_indexed_at-instance_method" title="#last_indexed_at (instance method)">- (DateTime) <strong>last_indexed_at</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+The date at whish the backup path was last indexed.
+</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#orphans-instance_method" title="#orphans (instance method)">- (Array, Mir::Models::Resource) <strong>orphans</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Returns any files not present since the last re-indexing.
+</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#setup-instance_method" title="#setup (instance method)">- (void) <strong>setup</strong>(options = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Creates necessary database and tables if this is the first time connecting.
+</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#update-instance_method" title="#update (instance method)">- (void) <strong>update</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>
+Scans the synchronization path and evaluates whether a resource has changed
+since the last index or is new and needs to be added to the index.
+</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <p class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Mir::Index (class)">Mir::Index</a></span></tt>) <strong>initialize</strong>(sync_path, connection_params) 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Returns a databse object used to connect to the indexing database
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <h3>Parameters:</h3>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>sync_path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+the absolute path of the directory to be synchronized
+</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>connection_params</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>
+database configuration settings. See
+ActiveRecord#Base::establish_connection
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+19
+20
+21
+22</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/mir/index.rb', line 19</span>
+
+<span class='kw'>def</span> <span class='id initialize'>initialize</span><span class='lparen'>(</span><span class='id sync_path'>sync_path</span><span class='comma'>,</span> <span class='id connection_params'>connection_params</span><span class='rparen'>)</span>
+  <span class='ivar'>@sync_path</span> <span class='op'>=</span> <span class='id sync_path'>sync_path</span>
+  <span class='ivar'>@connection_params</span> <span class='op'>=</span> <span class='id connection_params'>connection_params</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <span id="sync_path-instance_method"></span>
+      <div class="method_details first">
+  <p class="signature first" id="sync_path-instance_method">
+  
+    - (<tt>Object</tt>) <strong>sync_path</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Returns the value of attribute sync_path
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/mir/index.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='id sync_path'>sync_path</span>
+  <span class='ivar'>@sync_path</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+    
+    
+      <div class="method_details first">
+  <p class="signature first" id="clean!-instance_method">
+  
+    - (<tt>void</tt>) <strong>clean!</strong> 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p><p>
+Removes any files from the index that are no longer present locally
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+92
+93
+94</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/mir/index.rb', line 92</span>
+
+<span class='kw'>def</span> <span class='id clean!'>clean!</span>
+  <span class='const'>Models</span><span class='op'>::</span><span class='const'>Resource</span><span class='period'>.</span><span class='id delete_all_except'>delete_all_except</span><span class='lparen'>(</span><span class='id last_indexed_at'>last_indexed_at</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <p class="signature " id="last_indexed_at-instance_method">
+  
+    - (<tt>DateTime</tt>) <strong>last_indexed_at</strong> 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+The date at whish the backup path was last indexed
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <h3>Returns:</h3>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>DateTime</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+84
+85
+86</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/mir/index.rb', line 84</span>
+
+<span class='kw'>def</span> <span class='id last_indexed_at'>last_indexed_at</span>
+  <span class='ivar'>@last_indexed_at</span> <span class='op'>||=</span> <span class='const'>Models</span><span class='op'>::</span><span class='const'>AppSetting</span><span class='period'>.</span><span class='id last_indexed_at'>last_indexed_at</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <p class="signature " id="orphans-instance_method">
+  
+    - (<tt>Array</tt>, <tt><span class='object_link'><a href="Models/Resource.html" title="Mir::Models::Resource (class)">Mir::Models::Resource</a></span></tt>) <strong>orphans</strong> 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p>
+Returns any files not present since the last re-indexing. This is useful
+for finding files that have been deleted post-index.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <h3>Returns:</h3>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array</tt>, <tt><span class='object_link'><a href="Models/Resource.html" title="Mir::Models::Resource (class)">Mir::Models::Resource</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+77
+78
+79</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/mir/index.rb', line 77</span>
+
+<span class='kw'>def</span> <span class='id orphans'>orphans</span>
+  <span class='const'>Models</span><span class='op'>::</span><span class='const'>Resource</span><span class='period'>.</span><span class='id not_indexed_on'>not_indexed_on</span><span class='lparen'>(</span><span class='id last_indexed_at'>last_indexed_at</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <p class="signature " id="setup-instance_method">
+  
+    - (<tt>void</tt>) <strong>setup</strong>(options = {}) 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p><p>
+Creates necessary database and tables if this is the first time connecting
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <h3>Parameters:</h3>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>options</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>
+a customizable set of options
+</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <h3>Options Hash (<tt>options</tt>):</h3>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:verbose</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+          </span>
+          &mdash; <div class='inline'><p>
+Enable on ActiveRecord reporting
+</p>
+</div>
+        </tr>
+      
+        <li>
+          <span class="name">:force_flush</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+          </span>
+          &mdash; <div class='inline'><p>
+Rebuild index no matter what
+</p>
+</div>
+        </tr>
+      
+    </ul>
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/mir/index.rb', line 32</span>
+
+<span class='kw'>def</span> <span class='id setup'>setup</span><span class='lparen'>(</span><span class='id options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id options'>options</span><span class='lbracket'>[</span><span class='symbol'>:force_flush</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='kw'>false</span>
+  <span class='id options'>options</span><span class='lbracket'>[</span><span class='symbol'>:verbose</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='kw'>false</span>
+  <span class='ivar'>@connection</span> <span class='op'>=</span> <span class='const'>ActiveRecord</span><span class='op'>::</span><span class='const'>Base</span><span class='period'>.</span><span class='id establish_connection'>establish_connection</span><span class='lparen'>(</span><span class='ivar'>@connection_params</span><span class='rparen'>)</span><span class='period'>.</span><span class='id connection'>connection</span>
+  <span class='const'>ActiveRecord</span><span class='op'>::</span><span class='const'>Base</span><span class='period'>.</span><span class='id timestamped_migrations'>timestamped_migrations</span> <span class='op'>=</span> <span class='kw'>false</span>
+  
+  <span class='kw'>if</span> <span class='id options'>options</span><span class='lbracket'>[</span><span class='symbol'>:verbose</span><span class='rbracket'>]</span>
+    <span class='const'>ActiveRecord</span><span class='op'>::</span><span class='const'>Base</span><span class='period'>.</span><span class='id logger'>logger</span> <span class='op'>=</span> <span class='const'>Mir</span><span class='period'>.</span><span class='id logger'>logger</span>
+    <span class='const'>ActiveRecord</span><span class='op'>::</span><span class='const'>Migration</span><span class='period'>.</span><span class='id verbose'>verbose</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+  
+  <span class='id load_tables'>load_tables</span>
+  <span class='id rebuild'>rebuild</span> <span class='kw'>if</span> <span class='op'>!</span><span class='id tables_created?'>tables_created?</span> <span class='kw'>or</span> <span class='id options'>options</span><span class='lbracket'>[</span><span class='symbol'>:force_flush</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <p class="signature " id="update-instance_method">
+  
+    - (<tt>void</tt>) <strong>update</strong> 
+  
+
+  
+</p><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p><p>
+Scans the synchronization path and evaluates whether a resource has changed
+since the last index or is new and needs to be added to the index.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/mir/index.rb', line 51</span>
+
+<span class='kw'>def</span> <span class='id update'>update</span>
+  <span class='const'>Mir</span><span class='period'>.</span><span class='id logger'>logger</span><span class='period'>.</span><span class='id info'>info</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Updating backup index for '</span><span class='embexpr_beg'>#{</span><span class='id sync_path'>sync_path</span><span class='rbrace'>}</span><span class='tstring_content'>'</span><span class='tstring_end'>&quot;</span></span>
+  <span class='const'>Models</span><span class='op'>::</span><span class='const'>AppSetting</span><span class='period'>.</span><span class='id last_indexed_at'>last_indexed_at</span> <span class='op'>=</span> <span class='ivar'>@last_indexed_at</span> <span class='op'>=</span> <span class='const'>DateTime</span><span class='period'>.</span><span class='id now'>now</span>
+  
+  <span class='const'>Dir</span><span class='period'>.</span><span class='id glob'>glob</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id join'>join</span><span class='lparen'>(</span><span class='id sync_path'>sync_path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>**</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id f'>f</span><span class='op'>|</span>
+    <span class='id fname'>fname</span> <span class='op'>=</span> <span class='id relative_path'>relative_path</span><span class='lparen'>(</span><span class='id f'>f</span><span class='rparen'>)</span>
+    <span class='id file'>file</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id new'>new</span><span class='lparen'>(</span><span class='id f'>f</span><span class='rparen'>)</span>
+    <span class='id resource'>resource</span> <span class='op'>=</span> <span class='const'>Models</span><span class='op'>::</span><span class='const'>Resource</span><span class='period'>.</span><span class='id find_by_filename'>find_by_filename</span><span class='lparen'>(</span><span class='id fname'>fname</span><span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='id resource'>resource</span><span class='period'>.</span><span class='id nil?'>nil?</span>
+      <span class='const'>Mir</span><span class='period'>.</span><span class='id logger'>logger</span><span class='period'>.</span><span class='id debug'>debug</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Adding file to index </span><span class='embexpr_beg'>#{</span><span class='id fname'>fname</span><span class='rbrace'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id resource'>resource</span> <span class='op'>=</span> <span class='const'>Models</span><span class='op'>::</span><span class='const'>Resource</span><span class='period'>.</span><span class='id create_from_file_and_name'>create_from_file_and_name</span><span class='lparen'>(</span><span class='id file'>file</span><span class='comma'>,</span> <span class='id fname'>fname</span><span class='rparen'>)</span>
+    <span class='kw'>elsif</span> <span class='op'>!</span><span class='id resource'>resource</span><span class='period'>.</span><span class='id synchronized?'>synchronized?</span><span class='lparen'>(</span><span class='id file'>file</span><span class='rparen'>)</span>
+      <span class='id resource'>resource</span><span class='period'>.</span><span class='id flag_for_update'>flag_for_update</span>
+    <span class='kw'>end</span>
+    <span class='id resource'>resource</span><span class='period'>.</span><span class='id update_attribute'>update_attribute</span><span class='lparen'>(</span><span class='symbol'>:last_indexed_at</span><span class='comma'>,</span> <span class='id last_indexed_at'>last_indexed_at</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  
+  <span class='const'>Mir</span><span class='period'>.</span><span class='id logger'>logger</span><span class='period'>.</span><span class='id info'>info</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Index updated</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+    
+    <div id="footer">
+  Generated on Fri Sep 23 18:24:38 2011 by 
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.7.2 (ruby-1.9.2).
+</div>
+
+  </body>
+</html>

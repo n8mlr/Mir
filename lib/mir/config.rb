@@ -1,10 +1,14 @@
 # The config class is used for storage of user settings and preferences releated to 
-# S3 storage
+#   S3 storage
 module Mir
   class UndefinedConfigValue < StandardError; end
     
   class Config
     
+    # Creates a new config instance
+    # @param config_file [String] path to the configuration file
+    # @yield [Mir::Config]
+    # @return [Mir::Config]
     def initialize(config_file = nil)
       @config_file = config_file
       @settings, @database = nil, nil
@@ -19,9 +23,9 @@ module Mir
     attr_accessor :max_upload_attempts, :max_download_attempts, :max_threads
     
     # Validates configuration settings
-    # TODO: move this into a class method responsible for parsing the YAML file. We
-    # shouldn't have to explicitly check for a valid object unless the user has provided
-    # a settings file
+    # @todo move this into a class method responsible for parsing the YAML file. We
+    #   shouldn't have to explicitly check for a valid object unless the user has provided
+    #   a settings file
     def valid?
       if @config_file.nil? or !File.exist?(@config_file)
         Mir.logger.error("Configuration file not found")
@@ -47,8 +51,6 @@ module Mir
       true
     end
     
-    
-        
     def method_missing(meth, *args, &block)
       val = @settings.send(meth)
       unless val.nil?

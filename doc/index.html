@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>
+  File: README
+  
+    &mdash; Documentation by YARD 0.7.2
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" media="screen" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  relpath = '';
+  if (relpath != '') relpath += '/';
+</script>
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <script type="text/javascript" charset="utf-8">
+      if (window.top.frames.main) document.body.className = 'frames';
+    </script>
+    
+    <div id="header">
+      <div id="menu">
+  
+    <a href="_index.html" title="Index">Index</a> &raquo; 
+    <span class="title">File: README</span>
+  
+  
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a id="class_list_link" href="#">Class List</a>
+  
+    <a id="method_list_link" href="#">Method List</a>
+  
+    <a id="file_list_link" href="#">File List</a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+    
+    <iframe id="search_frame"></iframe>
+    
+    <div id="content"><div id='filecontents'><h1>Mir</h1>
+
+<p>Mir is a synchronization tool to help clone a directory to a remote storage
+provider. Currently only S3 is provided. A couple of the features that differentiate
+Mir from other Ruby S3 synchronization tools currently available are:</p>
+
+<ul>
+<li>Solves S3 connection problems associated with storage and retrieval of large files (>2GB) by transparently splitting and recombining files</li>
+<li>Only updates and sends resources that have fallen out of synchronization</li>
+<li>Creates checksum comparisons on reads and writes to ensure complete end-to-end transmission</li>
+<li>Provides a simple command line interface for pushing and pulling files</li>
+</ul>
+
+
+<p>The inspiration for this tool is to provide similar functionality to the classic Rsync command, but to utilize cloud-based storage providers.</p>
+
+<h2>Configuration</h2>
+
+<p>Mir uses a YAML file for configuration settings. Unless you specify otherwise, Mir will look for the file  'mir_settings.yml' in the HOME and /etc/mir directories.</p>
+
+<pre class="code">settings:
+  max_upload_attempts: 5
+  max_download_attempts: 5
+  max_threads: 5
+  cloud_provider:
+    type: s3
+    bucket_name: gotham_backup
+    access_key_id: YOUR_ACCESS_KEY
+    secret_access_key: YOUR_SECRET_ACCESS_KEY
+    chunk_size: 5242880
+  database:
+    adapter: sqlite3
+    database: foobar.db
+</pre>
+
+<p>Configuration keys:</p>
+
+<ul>
+<li><em>max_upload_retries</em>: This is the maximum number of attempts that Mir will try to upload your file</li>
+<li><em>max_threads</em>: The maximum number of threads that will run at once</li>
+<li><em>cloud_provider</em>: Currently only S3 is provided</li>
+<li><em>chunk_size</em>: This is the maximum number of bytes that will be written to S3 per PUT request. This is useful for sending large files to S3 and avoiding connection errors.</li>
+<li><em>database</em>: Connection information for your local database. This is delegated to ActiveRecord. See <a href="http://api.rubyonrails.org/classes/ActiveRecord/Base.html#method-c-establish_connection">See ActiveRecord#Base::establish_connection</a> for more details.</li>
+</ul>
+
+
+<h2>Usage</h2>
+
+<p>Install the gem:</p>
+
+<pre class="code"><span class='id gem'>gem</span> <span class='id install'>install</span> <span class='id mir'>mir</span>
+</pre>
+
+<p>Create mir_settings.yml in the HOME or /etc/mir directories. Adjust to taste</p>
+
+<p>Push your local directory to S3</p>
+
+<pre class="code"><span class='id mir'>mir</span> <span class='op'>~</span><span class='tstring'><span class='regexp_beg'>/</span><span class='regexp_end'>mydirectory
+</span></span></pre>
+
+<p>To retrieve your remote directory</p>
+
+<pre class="code">mir -c ~/mydirectory
+</pre>
+
+<h2>Notes</h2>
+
+<p>This project is considered in an alpha state and is not ready for use in any sort of production environment. Additionally, this has an embarrassingly small number of specs which should encourage you not to use this for your critical storage needs.</p>
+</div></div>
+    
+    <div id="footer">
+  Generated on Fri Sep 23 18:24:38 2011 by 
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.7.2 (ruby-1.9.2).
+</div>
+
+  </body>
+</html>

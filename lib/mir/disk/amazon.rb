@@ -13,11 +13,10 @@ module Mir
       
       attr_reader :bucket_name, :connection
       
-      #
       # Converts a path name to a key that can be stored on s3
       # 
-      # @param [String] the path to the file
-      # @return [String] an S3-safe key with leading slashes removed
+      # @param path [String] the path to the file
+      # @return [String]
       def self.s3_key(path)
         if path[0] == File::SEPARATOR
           path[1..-1] 
@@ -26,6 +25,13 @@ module Mir
         end
       end
       
+      ##
+      # Attempts to create a new connection to Amazon S3
+      # @option settings [Symbol] :bucket_name The name of the remote bucket
+      # @option settings [Symbol] :access_key_id The access key id for the amazon account
+      # @option settings [Symbol] :secret_access_key The secret access key for the amazon account
+      # @option settings [Symbol] :chunk_size The maximum number of bytes to use for each chunk
+      #   of a file sent to S3
       def initialize(settings = {})
         @bucket_name = settings[:bucket_name]
         @access_key_id = settings[:access_key_id]
@@ -35,22 +41,28 @@ module Mir
       end
       
       # Returns the buckets available from S3
+      # @return [Hash]
       def collections
         @connection.list_bucket.select(:key)
       end
       
+      # Sets the maximum number of bytes to be used per chunk sent to S3
+      # @param n [Integer] Number of bytes
+      # @return [void]
       def chunk_size=(n)
         raise ArgumentError unless n > 0
         @chunk_size = n
       end
       
+      # The size in bytes of each chunk
+      # @return [Integer]
       def chunk_size
         @chunk_size
       end
       
       # Whether the key exists in S3
       # 
-      # @param [String] the S3 key name
+      # @param key [String] the S3 key name
       # @return [Boolean]
       def key_exists?(key)
         begin
@@ -63,8 +75,9 @@ module Mir
       end
       
       # Copies the remote resource to the local filesystem
-      # @param [String] the remote name of the resource to copy
-      # @param [String] the local name of the destination
+      # @param from [String] the remote name of the resource to copy
+      # @param dest [String] the local name of the destination
+      # @return [void]
       def copy(from, dest)
         open(dest, 'w') do |file|
           key = self.class.s3_key(from)
@@ -73,15 +86,23 @@ module Mir
         end
       end
       
-      # Retrieves the complete object from S3 without streaming
+      # Retrieves the complete object from S3. Note this method will not stream the object
+      # and will return the value of the object stored on S3
+      # 
+      # @param key [String] the S3 key name of the object
+      # @return [String]
       def read(key)
         connection.get_object(bucket_name, key)
       end
       
+      # Whether a connection to S3 has been established
+      # @return [Boolean]
       def connected?
         @connection_success
       end
       
+      # Retrieves the bucket from S3
+      # @return [RightAws::S3::Bucket]
       def volume
         connection.bucket(bucket_name, true)
       end
@@ -111,6 +132,7 @@ module Mir
       # 
       # @param [String] the absolute path of the file to be written
       # @raise [Disk::IncompleteTransmission] raised when remote resource is different from local file
+      # @return [void]
       def write(file_path)
         key = self.class.s3_key(file_path)
         
@@ -154,6 +176,8 @@ module Mir
         Digest::MD5.file(filename).to_s == remote_md5
       end
       
+      # Attempts to establish a connection with Amazon S3
+      # @return [RightAws::S3Interface|Boolean]
       def try_connect
         begin
           conn = RightAws::S3Interface.new(@access_key_id, @secret_access_key, {
@@ -171,7 +195,8 @@ module Mir
       # Yields a temp file object that is immediately discarded after use
       #
       # @param [String] the filename
-      # @yields [Tempfile]
+      # @yield [Tempfile]
+      # @return [void]
       def temp_file(name, &block)          
         file = Tempfile.new(File.basename(name))
         begin

@@ -10,7 +10,7 @@ module Mir
       # Builds a resource for the backup index from a file
       # @param [File] a file object
       # @param [String] the name of the file on the remote disk
-      # @returns [Resource] a new Resource instance that with a queued status
+      # @return [Resource] a new Resource instance that with a queued status
       def self.create_from_file_and_name(file, name)
         is_dir = File.directory?(file)
         create(:filename => name,
@@ -41,9 +41,11 @@ module Mir
         chunked_groups(qry, response_size) { |chunk| yield chunk }
       end
       
+      ##
       # Returns groups of file resources ordered by name
+      #
       # @param [Integer] the number of records to return per chunk
-      # @yields [Array] instances of Models::Resource
+      # @yield [Array] instances of Models::Resource
       def self.ordered_groups(group_size = 10)
         qry = lambda { Resource.order(:filename) }
         chunked_groups(qry, group_size) { |chunk| yield chunk }
@@ -76,7 +78,7 @@ module Mir
       end
       
       # Whether the item can be synchronized to a remote disk
-      # @returns [Boolean] true when the resource is not a directory
+      # @return [Boolean] true when the resource is not a directory
       def synchronizable?
         !is_directory?
       end
